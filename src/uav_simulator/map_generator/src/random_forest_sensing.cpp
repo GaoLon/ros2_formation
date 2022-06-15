@@ -6,8 +6,8 @@
 // #include <pcl/search/impl/organized.hpp>
 #include <iostream>
 
-#include <geometry_msgs/PoseStamped.h>
-#include <geometry_msgs/Vector3.h>
+#include <geometry_msgs/msg/pose_stamped.hpp>
+#include <geometry_msgs/msg/vector3.hpp>
 #include <math.h>
 #include <nav_msgs/msg/odometry.hpp>
 #include <rclcpp/rclcpp.hpp>
@@ -348,7 +348,7 @@ void FixMapGenerate(rclcpp::Node::SharedPtr node){
 
 }
 
-void clickCallback(const geometry_msgs::PoseStamped &msg)
+void clickCallback(const geometry_msgs::msg::PoseStamped &msg)
 {
   double x = msg.pose.position.x;
   double y = msg.pose.position.y;
