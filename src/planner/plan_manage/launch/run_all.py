@@ -1,7 +1,7 @@
 from click import launch
-from launch import LaunchDescription
+from launch import LaunchDescription, event_handlers, events
 from launch_ros.actions import Node
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, RegisterEventHandler, LogInfo, EmitEvent
 from launch.conditions import IfCondition
 from launch.substitutions import LaunchConfiguration
 from launch.launch_description_sources import PythonLaunchDescriptionSource
@@ -11,12 +11,12 @@ from ament_index_python.packages import get_package_share_directory
 def generate_launch_description():
     ego_planner = get_package_share_directory('ego_planner')
     launch_list = list()
-    # init_x = ['-26.0', '-23.4', '-26.0', '-28.6', '-28.6', '-26.0', '-23.4']
-    # init_y = ['0.0', '-1.5', '-3.0', '-1.5', '1.5', '3.0', '1.5']
+    init_x = ['-26.0', '-23.4', '-26.0', '-28.6', '-28.6', '-26.0', '-23.4']
+    init_y = ['0.0', '-1.5', '-3.0', '-1.5', '1.5', '3.0', '1.5']
     # init_x = ['-26.0', '-23.4']
     # init_y = ['0.0', '-1.5']
-    init_x = ['-26.0']
-    init_y = ['0.0']
+    # init_x = ['-26.0']
+    # init_y = ['0.0']
 
     # Map
     launch_list.append(Node(
@@ -47,12 +47,13 @@ def generate_launch_description():
     # RViz
     launch_list.append(DeclareLaunchArgument('rviz', 
         default_value='true', description='Open RViz.'))
-    launch_list.append(Node(
+    rviz = Node(
         package='rviz2',
         executable='rviz2',
         arguments=['-d', os.path.join(ego_planner, 'rviz', 'default.rviz')],
-        condition=IfCondition(LaunchConfiguration('rviz'))
-    ))
+        condition=IfCondition(LaunchConfiguration('rviz')),
+    )
+    launch_list.append(rviz)
     # Drones
     for i in range(len(init_x)):
         launch_list.append(IncludeLaunchDescription(
@@ -65,5 +66,14 @@ def generate_launch_description():
                 'init_y': init_y[i],
                 'init_z': '0.5',
                 }.items(),))
+    # Shutdown all
+    launch_list.append(RegisterEventHandler(
+            event_handler=event_handlers.OnProcessExit(
+                target_action=rviz,
+                on_exit=[
+                    LogInfo(
+                        msg="Rviz exited; tearing down entire system."),
+                    EmitEvent(
+                        event=events.Shutdown())])))
 
     return LaunchDescription(launch_list)

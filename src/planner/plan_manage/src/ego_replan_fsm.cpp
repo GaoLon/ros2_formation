@@ -264,11 +264,8 @@ namespace ego_planner
     case EXEC_TRAJ:
     {
       /* determine if need to replan */
-      // std::cout<<"begin_exec\n";
       LocalTrajData *info = &planner_manager_->traj_.local_traj;
-      // std::cout<<"begin_sub\n";
       double t_cur = (fsm_clock.now() - info->start_time).seconds();
-      // std::cout<<"end_sub\n";
       t_cur = min(info->duration, t_cur);
 
       Eigen::Vector3d pos = info->traj.getPos(t_cur);
@@ -379,9 +376,7 @@ namespace ego_planner
           continue;
         }
 
-        // std::cout<<"begin_checkco\n";
         double t_X = (t_cur_global - planner_manager_->traj_.swarm_traj.at(id).start_time).seconds();
-        // std::cout<<"end_checkco\n";
 
         if (t_X > planner_manager_->traj_.swarm_traj.at(id).duration)
           continue;
@@ -507,7 +502,6 @@ namespace ego_planner
 
   void EGOReplanFSM::RecvBroadcastPolyTrajCallback(const traj_utils::msg::PolyTraj::ConstPtr &msg)
   {
-    std::cout<<"SHIT_TRAJ_HERE\n";
     if (msg->drone_id < 0)
     {
       RCLCPP_ERROR(node_->get_logger(),"drone_id < 0 is not allowed in a swarm system!");
@@ -523,15 +517,14 @@ namespace ego_planner
       RCLCPP_ERROR(node_->get_logger(),"WRONG trajectory parameters.");
       return;
     }
-    if (abs((fsm_clock.now() - msg->header.stamp).seconds()) > 0.25)
+    if (abs((fsm_clock.now() - rclcpp::Time(msg->header.stamp, RCL_SYSTEM_TIME)).seconds()) > 0.25)
     {
       RCLCPP_WARN(node_->get_logger(), "Time stamp diff: Local - Remote Agent %d = %fs",
-               msg->drone_id, (fsm_clock.now() - msg->header.stamp).seconds());
+               msg->drone_id, (fsm_clock.now() - rclcpp::Time(msg->header.stamp,  RCL_SYSTEM_TIME)).seconds());
       return;
     }
 
     const size_t recv_id = (size_t)msg->drone_id;
-    std::cout<<"recv_id="<<recv_id<<std::endl;
     if ((int)recv_id == planner_manager_->pp_.drone_id)
       return;
 
@@ -549,7 +542,7 @@ namespace ego_planner
     /* Store data */
     planner_manager_->traj_.swarm_traj[recv_id].drone_id = recv_id;
     planner_manager_->traj_.swarm_traj[recv_id].traj_id = msg->traj_id;
-    planner_manager_->traj_.swarm_traj[recv_id].start_time = msg->header.stamp;
+    planner_manager_->traj_.swarm_traj[recv_id].start_time = rclcpp::Time(msg->header.stamp, RCL_SYSTEM_TIME);
 
     int piece_nums = msg->duration.size();
     std::vector<double> dura(piece_nums);
@@ -660,8 +653,6 @@ namespace ego_planner
 
     msg.drone_id = planner_manager_->pp_.drone_id;
     msg.traj_id = data->traj_id;
-    // std::cout<<"data_start_time="<<data->start_time<<std::endl;
-    // msg.header.stamp.set__sec(static_cast<int32_t>(data->start_time));
     msg.header.stamp = data->start_time;
     msg.order = 5; // todo, only support order = 5 now.
 
@@ -879,7 +870,6 @@ namespace ego_planner
       polyTraj2ROSMsg(msg);
       poly_traj_pub_->publish(msg);
       broadcast_ploytraj_pub_->publish(msg);
-      // std::cout<<"publish down\n";
       have_local_traj_ = true;
     }
 

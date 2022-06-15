@@ -96,13 +96,14 @@ def generate_launch_description():
                 
             ],
             remappings=[
-                # ('planning/broadcast_traj_send', '/broadcast_traj_planner'),
-                ('planning/broadcast_traj_send', '/broadcast_traj_from_planner'),
-                # ('planning/broadcast_traj_recv', '/broadcast_traj_planner'),
-                ('planning/broadcast_traj_recv', '/broadcast_traj_to_planner'),
+                ('planning/broadcast_traj_send', '/broadcast_traj_planner'),
+                # ('planning/broadcast_traj_send', '/broadcast_traj_from_planner'),
+                ('planning/broadcast_traj_recv', '/broadcast_traj_planner'),
+                # ('planning/broadcast_traj_recv', '/broadcast_traj_to_planner'),
                 ('grid_map/odom', 'odometry'),
                 ('grid_map/cloud', 'pcl_render_node/cloud'),
             ],
-            output='screen'
+            output='screen',
+            respawn=True
         )
     ])
