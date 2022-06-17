@@ -14,7 +14,7 @@ ros2 launch ego_planner run_all.py
 Then you can use `2DGoalPose` plugin test the planner
 
 ## TODO List
-Swarm
+Add it into MBZIRC simulator
 
 ## NOTE
 If when you build and get linker error as `LZ4....`:
