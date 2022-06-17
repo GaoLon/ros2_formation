@@ -116,11 +116,12 @@ void GridMap::initMap(rclcpp::Node::SharedPtr nh)
   mp_.min_occupancy_log_ = logit(mp_.p_occ_);
   mp_.unknown_flag_ = 0.01;
 
-  cout << "hit: " << mp_.prob_hit_log_ << endl;
-  cout << "miss: " << mp_.prob_miss_log_ << endl;
-  cout << "min log: " << mp_.clamp_min_log_ << endl;
-  cout << "max: " << mp_.clamp_max_log_ << endl;
-  cout << "thresh log: " << mp_.min_occupancy_log_ << endl;
+  // get param
+  // cout << "hit: " << mp_.prob_hit_log_ << endl;
+  // cout << "miss: " << mp_.prob_miss_log_ << endl;
+  // cout << "min log: " << mp_.clamp_min_log_ << endl;
+  // cout << "max: " << mp_.clamp_max_log_ << endl;
+  // cout << "thresh log: " << mp_.min_occupancy_log_ << endl;
 
   for (int i = 0; i < 3; ++i)
     mp_.map_voxel_num_(i) = ceil(mp_.map_size_(i) / mp_.resolution_);

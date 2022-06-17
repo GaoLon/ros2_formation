@@ -6,8 +6,8 @@ namespace ego_planner
 {
   PlanningVisualization::PlanningVisualization(rclcpp::Node::SharedPtr node_)
   {
-    node = rclcpp::Node::make_shared("vis_node");
-    // node = node_;
+    // node = rclcpp::Node::make_shared("vis_node");
+    node = node_;
     goal_point_pub = node->create_publisher<visualization_msgs::msg::Marker>("goal_point", 2);
     global_list_pub = node->create_publisher<visualization_msgs::msg::Marker>("global_list", 2);
     init_list_pub = node->create_publisher<visualization_msgs::msg::Marker>("init_list", 2);
@@ -27,7 +27,8 @@ namespace ego_planner
 
     swarm_formation_visual_pub = node->create_publisher<visualization_msgs::msg::MarkerArray>("swarm_graph_visual", 10);
 
-    t_init = node->get_clock()->now();
+    // t_init = node->get_clock()->now();
+    t_init = vis_clock.now();
     rclcpp::Parameter drone_id_s_param, formation_type_p;
     node->get_parameter_or("manager/drone_id", drone_id_s_param, rclcpp::Parameter("manager/drone_id", "drone_0"));
     node->get_parameter_or("optimization/formation_type", formation_type_p, rclcpp::Parameter("optimization/formation_type", -1));
@@ -75,7 +76,7 @@ namespace ego_planner
     drone_5_odom_sub_ = node->create_subscription<nav_msgs::msg::Odometry>("/drone_5/odometry", 1, \
                         [this](const nav_msgs::msg::Odometry::ConstPtr msg){drone_5_odomeCallback(msg);});
     drone_6_odom_sub_ = node->create_subscription<nav_msgs::msg::Odometry>("/drone_6/odometry", 1, \
-                        [this](const nav_msgs::msg::Odometry::ConstPtr msg){drone_0_odomeCallback(msg);});
+                        [this](const nav_msgs::msg::Odometry::ConstPtr msg){drone_6_odomeCallback(msg);});
     drone_7_odom_sub_ = node->create_subscription<nav_msgs::msg::Odometry>("/drone_7/odometry", 1, \
                         [this](const nav_msgs::msg::Odometry::ConstPtr msg){drone_7_odomeCallback(msg);});
     drone_8_odom_sub_ = node->create_subscription<nav_msgs::msg::Odometry>("/drone_8/odometry", 1, \
@@ -149,7 +150,8 @@ namespace ego_planner
 
   void PlanningVisualization::benchmarkCallback(){
        
-       t_record = node->get_clock()->now();
+      //  t_record = node->get_clock()->now();
+      t_record = vis_clock.now();
       //  t_record = ros::Time::now();
       //  double t_current = (t_record - t_init).toSec();
        double t_current = (t_record - t_init).seconds();
@@ -203,7 +205,7 @@ namespace ego_planner
   }
 
   void PlanningVisualization::drone_6_odomeCallback(const nav_msgs::msg::Odometry::ConstPtr &msg){
-    if (formation_size_ <=5 )
+    if (formation_size_ <=6 )
       return;
     
     swarm_odom[6] << msg->pose.pose.position.x, msg->pose.pose.position.y, msg->pose.pose.position.z;
@@ -277,7 +279,8 @@ namespace ego_planner
   {
     visualization_msgs::msg::Marker sphere, line_strip;
     sphere.header.frame_id = line_strip.header.frame_id = "world";
-    sphere.header.stamp = line_strip.header.stamp = node->get_clock()->now();
+    sphere.header.stamp = line_strip.header.stamp = vis_clock.now();
+    // sphere.header.stamp = line_strip.header.stamp = node->get_clock()->now();
     // sphere.header.stamp = line_strip.header.stamp = ros::Time::now();
     sphere.type = visualization_msgs::msg::Marker::SPHERE_LIST;
     line_strip.type = visualization_msgs::msg::Marker::LINE_STRIP;
@@ -313,7 +316,7 @@ namespace ego_planner
   {
     visualization_msgs::msg::Marker sphere, line_strip;
     sphere.header.frame_id = line_strip.header.frame_id = "world";
-    sphere.header.stamp = line_strip.header.stamp = node->get_clock()->now();
+    sphere.header.stamp = line_strip.header.stamp = vis_clock.now();
     // sphere.header.stamp = line_strip.header.stamp = ros::Time::now();
     sphere.type = visualization_msgs::msg::Marker::SPHERE_LIST;
     line_strip.type = visualization_msgs::msg::Marker::LINE_STRIP;
@@ -349,7 +352,7 @@ namespace ego_planner
   {
     visualization_msgs::msg::Marker arrow;
     arrow.header.frame_id = "world";
-    arrow.header.stamp = node->get_clock()->now();
+    arrow.header.stamp = vis_clock.now();
     // arrow.header.stamp = ros::Time::now();
     arrow.type = visualization_msgs::msg::Marker::ARROW;
     arrow.action = visualization_msgs::msg::Marker::ADD;
@@ -391,7 +394,7 @@ namespace ego_planner
   {
     visualization_msgs::msg::Marker sphere;
     sphere.header.frame_id = "world";
-    sphere.header.stamp = node->get_clock()->now();
+    sphere.header.stamp = vis_clock.now();
     // sphere.header.stamp = ros::Time::now();
     sphere.type = visualization_msgs::msg::Marker::SPHERE;
     sphere.action = visualization_msgs::msg::Marker::ADD;

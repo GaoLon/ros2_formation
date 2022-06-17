@@ -177,8 +177,9 @@ int main(int argc, char** argv) {
   // subscribe point cloud
   global_map_sub = nh->create_subscription<sensor_msgs::msg::PointCloud2>("global_map", 1, \
                         [](const sensor_msgs::msg::PointCloud2& msg){rcvGlobalPointCloudCallBack(msg);});
-  local_map_sub = nh->create_subscription<sensor_msgs::msg::PointCloud2>("local_map", 1, \
-                        [](const sensor_msgs::msg::PointCloud2& msg){rcvLocalPointCloudCallBack(msg);});
+  // useless
+  // local_map_sub = nh->create_subscription<sensor_msgs::msg::PointCloud2>("local_map", 1, \
+  //                       [](const sensor_msgs::msg::PointCloud2& msg){rcvLocalPointCloudCallBack(msg);});
   odom_sub = nh->create_subscription<nav_msgs::msg::Odometry>("odometry", 50, \
                         [](const nav_msgs::msg::Odometry& msg){rcvOdometryCallbck(msg);});        
 

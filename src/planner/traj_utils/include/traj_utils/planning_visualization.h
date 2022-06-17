@@ -96,8 +96,9 @@ namespace ego_planner
     // ros::Timer benchmark_recorder;
 
     std::ofstream odom_csv;
-    rclcpp::Time t_init{0L, RCL_ROS_TIME};
-    rclcpp::Time t_record{0L, RCL_ROS_TIME};
+    rclcpp::Clock vis_clock;
+    rclcpp::Time t_init{0L, RCL_SYSTEM_TIME};
+    rclcpp::Time t_record{0L, RCL_SYSTEM_TIME};
 
     // ros::Time t_init;
     // ros::Time t_record;

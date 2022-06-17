@@ -5,18 +5,22 @@
 #include <eigen3/Eigen/Dense>
 #include <rclcpp/rclcpp.hpp>
 #include <nav_msgs/msg/odometry.hpp>
+#include <nav_msgs/msg/path.hpp>
 #include <visualization_msgs/msg/marker.hpp>
 #include <quadrotor_msgs/msg/position_command.hpp>
 
 rclcpp::Subscription<quadrotor_msgs::msg::PositionCommand>::SharedPtr _cmd_sub;
 rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr _odom_pub;
 rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr _mesh_pub;
+rclcpp::Publisher<nav_msgs::msg::Path>::SharedPtr _path_pub;
 // ros::Subscriber _cmd_sub;
 // ros::Publisher  _odom_pub;
 
 quadrotor_msgs::msg::PositionCommand _cmd;
 rclcpp::Parameter _init_x, _init_y, _init_z;
 std::string mesh_resource; 
+nav_msgs::msg::Path robo_path;
+rclcpp::Time pre_time;
 
 bool rcv_cmd = false;
 // fstream file
@@ -64,6 +68,16 @@ void pubOdom(rclcpp::Node::SharedPtr nh)
 	    odom.twist.twist.angular.x = _cmd.acceleration.x;
 	    odom.twist.twist.angular.y = _cmd.acceleration.y;
 	    odom.twist.twist.angular.z = _cmd.acceleration.z;
+		
+		if ((nh->now() - pre_time).seconds() > 0.1)
+		{
+			geometry_msgs::msg::PoseStamped point;
+
+			point.pose = odom.pose.pose;
+			robo_path.poses.push_back(point);
+			pre_time = robo_path.header.stamp = nh->now();
+			_path_pub->publish(robo_path);
+		}
 	}
 	else
 	{
@@ -115,20 +129,20 @@ int main (int argc, char** argv)
     nh->get_parameter_or("init_y", _init_y,  rclcpp::Parameter("init_y", 0.0));
     nh->get_parameter_or("init_z", _init_z,  rclcpp::Parameter("init_z", 0.0));
     nh->get_parameter_or("mesh_resource", mesh_resource, std::string("package://fake_drone/meshes/hummingbird.mesh"));
+	robo_path.header.frame_id = "world";
+	robo_path.header.stamp = pre_time = nh->now();
 
     _cmd_sub  = nh->create_subscription<quadrotor_msgs::msg::PositionCommand>("position_cmd", 1, \
                         [](const quadrotor_msgs::msg::PositionCommand msg){rcvPosCmdCallBack(msg);});
-    _odom_pub = nh->create_publisher<nav_msgs::msg::Odometry>("odometry", 10);                      
-    _mesh_pub = nh->create_publisher<visualization_msgs::msg::Marker>("mesh", 10);                
+    _odom_pub = nh->create_publisher<nav_msgs::msg::Odometry>("odometry", 10);
+    _mesh_pub = nh->create_publisher<visualization_msgs::msg::Marker>("mesh", 10);
+	_path_pub = nh->create_publisher<nav_msgs::msg::Path>("path", 10);
 	
 	rclcpp::Rate rate(100);
-    // ros::Rate rate(100);
     bool status = rclcpp::ok();
-    // bool status = ros::ok();
     while(status) 
     {
 		pubOdom(nh);                   
-        // ros::spinOnce();
 		rclcpp::spin_some(nh);
         status = rclcpp::ok();
         rate.sleep();

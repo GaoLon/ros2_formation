@@ -409,10 +409,10 @@ int main(int argc, char **argv)
   rclcpp::Node::SharedPtr n = rclcpp::Node::make_shared("map_generator", \
           rclcpp::NodeOptions().allow_undeclared_parameters(true).automatically_declare_parameters_from_overrides(true));
 
-  _local_map_pub = n->create_publisher<sensor_msgs::msg::PointCloud2>("/map_generator/local_cloud", 1);
+  // _local_map_pub = n->create_publisher<sensor_msgs::msg::PointCloud2>("/map_generator/local_cloud", 1);
   _all_map_pub = n->create_publisher<sensor_msgs::msg::PointCloud2>("/map_generator/global_cloud", 1);
 
-  click_map_pub_ = n->create_publisher<sensor_msgs::msg::PointCloud2>("/pcl_render_node/local_map", 1);
+  // click_map_pub_ = n->create_publisher<sensor_msgs::msg::PointCloud2>("/pcl_render_node/local_map", 1);
 
   n->get_parameter_or("map/x_size", _x_size_, rclcpp::Parameter("map/x_size", 50.0));
   n->get_parameter_or("map/y_size", _y_size_, rclcpp::Parameter("map/y_size", 50.0));

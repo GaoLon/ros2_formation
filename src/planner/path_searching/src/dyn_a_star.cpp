@@ -173,7 +173,7 @@ bool AStar::AstarSearch(const double step_size, Vector3d start_pt, Vector3d end_
         {
             // ros::Time time_2 = ros::Time::now();
             clock_t time_2 = clock();
-            printf("\033[34mA star iter:%d, time:%.3fms\033[0m\n",num_iter, (time_2 - time_1));
+            printf("\033[34mA star iter:%d, time:%dms\033[0m\n",num_iter, (time_2 - time_1));
             // if((time_2 - time_1).toSec() > 0.1)
             //     ROS_WARN("Time consume in A star path finding is %f", (time_2 - time_1).toSec() );
             gridPath_ = retrievePath(current);
